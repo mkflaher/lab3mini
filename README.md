@@ -17,3 +17,5 @@ https://people.csail.mit.edu/albert/bluez-intro/c212.html - pybluez
 ## I2C Master/Slave MSP430
 
 Read user guide pp. 450-473
+
+https://electronics.stackexchange.com/questions/67524/msp430-i%C2%B2c-single-write-read-example - example i2c code
