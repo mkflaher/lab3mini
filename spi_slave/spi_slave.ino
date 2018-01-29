@@ -1,7 +1,12 @@
 //Sean Flaherty
 //MSP430G2553 SPI code by D. Dang - https://gist.github.com/chrismeyersfsu/3326502
 //SPI 4-pin slave mode - allows for slave-select pins for the master to send information to multiple slaves.
+//Code is modified to change from 3- to 4-pin slave, as well as use UCSI_B0 instead of USCI_A0
 //Each slave MCU should use excerpts of this program.
+//P1.4 - Slave select
+//P1.5 - SCLK
+//P1.6 - MISO (not doing anything in this example)
+//P1.7 - MOSI
 #include "msp430g2553.h"
 #include <string.h>
 
@@ -51,7 +56,7 @@ __interrupt void USCI0RX_ISR(void)
   */
   char value = UCB0RXBUF;
   if (value == 'a'){
-    //move servo right
+    P1OUT ^= BIT0;
   }
   else if(value == 'b'){
     //move servo left

@@ -23,7 +23,7 @@ int main(void)
     P1OUT &= (~BIT4); // Select Device
 
     while (!(IFG2 & UCA0TXIFG)); // USCI_A0 TX buffer ready?
-    UCA0TXBUF = 'a'; // Send 0xAA over SPI to Slave
+    UCB0TXBUF = 'a'; // Send 0xAA over SPI to Slave
 
     P1OUT |= (BIT4); // Unselect Device
 }

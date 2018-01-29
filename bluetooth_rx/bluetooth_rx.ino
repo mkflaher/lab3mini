@@ -7,13 +7,18 @@
  
 #define TXD BIT2
 #define RXD BIT1
-#define TXI BIT7
-#define RXI BIT6
+#define MOSI BIT7
+#define MISO BIT6
  
 const char string[] = { "$$$" };
 char rx[200] = {""};
 unsigned int i; // tx counter
 unsigned int j; // rx counter
+
+void SPI_TX(void){
+	
+	if(rx[0] == 'a' || rx[0] == 'b'){ //string is right/left command for servos
+}
 
 int main(void){
 	WDTCTL = WDTPW + WDTHOLD; // Stop WDT
@@ -26,8 +31,8 @@ int main(void){
 	P2DIR |= 0xFF; // All P2.x outputs
 	P2OUT &= 0x00; // All P2.x reset
 	
-	P1SEL |= RXD + TXD + RXI + TXI ; // setup pins for UART and I2C
-	P1SEL2 |= RXD + TXD + RXI + TXI; // "" ""
+	P1SEL |= RXD + TXD + MOSI + MISO ; // setup pins for UART and SPI
+	P1SEL2 |= RXD + TXD + MOSI + MISO; // "" ""
 	P1OUT &= 0x00;
 
 	//UART setup
@@ -36,6 +41,8 @@ int main(void){
 	UCA0BR1 = 0x00; // 1MHz 115200
 	UCA0MCTL = UCBRS2 + UCBRS0; // Modulation UCBRSx = 5
 	UCA0CTL1 &= ~UCSWRST; // **Initialize USCI state machine**
+
+	//SPI setup
 
 	UC0IE |= UCA0RXIE; // Enable USCI_A0 RX interrupt
 	__bis_SR_register(CPUOFF + GIE); // Enter LPM0 w/ int until Byte RXed
