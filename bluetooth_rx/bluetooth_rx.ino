@@ -59,7 +59,6 @@ int main(void){
 	UCB0CTL1 |= UCSSEL_2; // SMCLK
 	UCB0BR0 = 10; //100khz divider
 	UCB0BR1 = 0; //second byte of divider (0)
-	//UCB0MCTL = 0; // No modulation (USCI_B0 doesn't have this feature)
 	UCB0CTL1 &= ~UCSWRST; // **Initialize USCI state machine**
 
 	UC0IE |= UCA0RXIE; // Enable USCI_A0 RX interrupt
@@ -89,11 +88,13 @@ __interrupt void USCI0RX_ISR(void)
 		j++;
 	}
 	else //stop command
-	{
+	{	
+		UCA0MCTL = 0; //turn off modulation for SPI
 		SPI_TX(); //send the string before clearing
 		j = 0;
 		for(int x=0; x<200;x++){
 			rx[x]='\0'; //clear string
 		}
+		UCA0MCTL = UCBRS2 + UCBRS0; //turn modulation back on when done
 	}
 }
