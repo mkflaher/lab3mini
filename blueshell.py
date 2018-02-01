@@ -13,7 +13,7 @@ def parse(cmd): #cmd is a valid array of strings
     string = char * num + '\r'
     return string
 
-valid = ["right", "left", "quit"] #list of valid commands
+valid = ["right", "left", "faster1", "slower1", "faster2", "slower2", "quit"] #list of valid commands
 
 print("Setting up socket.")
 sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)

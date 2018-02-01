@@ -9,6 +9,9 @@
 #define RXD BIT1
 #define MOSI BIT7
 #define MISO BIT6
+#define SCLK BIT5
+
+//in this program we don't need MISO or slave select - just clock and 
  
 const char string[] = { "$$$" };
 char rx[200] = {""};
@@ -17,17 +20,11 @@ unsigned int j; // rx counter
 
 void SPI_TX(void){
 	
-	if(rx[0] == 'a' || rx[0] == 'b'){ //string is right/left command for servos
-		P1OUT &= ~BIT3; //select P1.3 (servo slave)
-	}
-	else if(rx[0] == 'b' || rx[0] == 'c'){
-		P1OUT &= ~BIT4; //select P1.4 (LED slave)
-	}
 	for(int x; x<=j; x++){
-		while(!(IFG2 & UCB0TXIFG)); //TX buffer ready?
 		UCB0TXBUF = rx[x]; //send string index by index
+		__delay_cycles(100); // 100 khz divider => 10 us per bit => 80 us per byte
+		//best practice is to ensure UCB0TXIFG is ready
 	}
-	P1OUT |= BIT3 + BIT4; //unselect when done
 }
 
 int main(void){
@@ -41,9 +38,10 @@ int main(void){
 	
 	P2DIR |= 0xFF; // All P2.x outputs
 	P2OUT &= 0x00; // All P2.x reset
-	
-	P1SEL |= RXD + TXD + MOSI + MISO ; // setup pins for UART and SPI
-	P1SEL2 |= RXD + TXD + MOSI + MISO; // "" ""
+
+	P1DIR |= BIT0; //red LED for testing purposes
+	P1SEL |= RXD + TXD + MOSI + MISO + SCLK; // setup pins for UART and SPI
+	P1SEL2 |= RXD + TXD + MOSI + MISO + SCLK; // "" ""
 	P1OUT &= 0x00;
 
 	//UART setup
@@ -82,15 +80,18 @@ __interrupt void USCI0TX_ISR(void)
 #pragma vector=USCIAB0RX_VECTOR 
 __interrupt void USCI0RX_ISR(void) 
 { 
-	if (UCA0RXBUF != '\r') // not stop command?
+	if (UCA0RXBUF != '\r') // not carriage return?
 	{
+		P1OUT ^= BIT0;
 		rx[j] = UCA0RXBUF;
 		j++;
 	}
-	else //stop command
-	{	
+	else //carriage return
+	{
+	//P1OUT |= BIT0; //test cr received
 		UCA0MCTL = 0; //turn off modulation for SPI
 		SPI_TX(); //send the string before clearing
+	//P1OUT |= BIT0; //test SPI transmitted
 		j = 0;
 		for(int x=0; x<200;x++){
 			rx[x]='\0'; //clear string
